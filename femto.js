@@ -1,43 +1,44 @@
+/*jslint indent: 2, vars: true */
+/*globals window, XMLHttpRequest */
+"use strict";
+
 (function (exports, XMLHttpRequest, undefined) {
-  "use strict";
-  
-  var StaticMethods; 
+  var StaticMethods;
   var InstanceMethods;
   var findElements;
   var femtoFun;
   var f;
   var prop;
-  
+
   StaticMethods = {
     ajax: function (method, url, data, success, failure, upload) {
-      var prop,
-          request = new XMLHttpRequest();
-      request.onreadystatechange = function () {                
+      var prop;
+      var request = new XMLHttpRequest();
+
+      request.onreadystatechange = function () {
         var status;
         if (request.readyState === 4) {
-            status = 500;
-            try {
-              status = request.status;
-            } catch(e) {}
+          status = 500;
+          try {
+            status = request.status;
+          } catch (e) {}
 
-            if (status === 200) {
-              if (typeof success !== "undefined") {
-                if (request.response.length > 0) {
-                  success(request, JSON.parse(request.response));
-                }
-                else {
-                  success(request, null);
-                }
+          if (status === 200) {
+            if (typeof success !== "undefined") {
+              if (request.response.length > 0) {
+                success(request, JSON.parse(request.response));
+              } else {
+                success(request, null);
               }
             }
-            else {
-              if (failure !== undefined) {
-                failure();
-              }
+          } else {
+            if (failure !== undefined) {
+              failure();
             }
           }
+        }
       };
-      
+
       if (typeof upload !== "undefined") {
         request.upload = upload;
       }
@@ -55,8 +56,7 @@
           }
         }
         request.send(data.join("&"));
-      }
-      else {
+      } else {
         request.send();
       }
     },
@@ -79,25 +79,25 @@
   InstanceMethods.first = function () { return this.length > 0 ? this.shift() : null; };
   InstanceMethods.last = function () { return this.length > 0 ? this.pop() : null; };
   InstanceMethods.on = function (eventName, handler) {
-    var i,
-        outerHandler = function (evt) {
-          handler.apply(evt.target, arguments);
-        };
-        
-    for(i=0; i < this.length; i += 1) {
+    var i;
+    var outerHandler = function (evt) {
+        handler.apply(evt.target, arguments);
+      };
+
+    for (i = 0; i < this.length; i += 1) {
       this[i].addEventListener(eventName, outerHandler);
     }
     return this;
   };
   InstanceMethods.delegate = function (selector, eventName, handler) {
-    var i,
-        outerHandler = function(evt) {
-          if (evt.target.tagName === selector.toUpperCase()) {
-            handler.apply(evt.target, arguments);
-          }
-        };
-        
-    for(i=0; i < this.length; i += 1) {
+    var i;
+    var outerHandler = function (evt) {
+        if (evt.target.tagName === selector.toUpperCase()) {
+          handler.apply(evt.target, arguments);
+        }
+      };
+
+    for (i = 0; i < this.length; i += 1) {
       this[i].addEventListener(eventName, outerHandler);
     }
     return this;
@@ -106,23 +106,22 @@
 
   findElements = function (selector, scope) {
     var elements = [], matches, matching;
-    
+
     if (typeof scope === "undefined") {
       scope = [exports.document];
     }
+
     if (matches = selector.match(/^#([A-Za-z][\-A-Za-z0-9_:.]*)/)) {
       scope.forEach(function (scopingElement) {
         elements = elements.concat(scopingElement.getElementById(matches[1]));
       });
-    }
-    else if (matches = selector.match(/^\.([A-Za-z][\-A-Za-z0-9_:.]*)/)) {
+    } else if (matches = selector.match(/^\.([A-Za-z][\-A-Za-z0-9_:.]*)/)) {
       scope.forEach(function (scopingElement) {
         var matching = Array.prototype.slice.call(scopingElement.getElementsByClassName(matches[1]));
         elements = elements.concat(matching);
       });
 
-    }
-    else {
+    } else {
       scope.forEach(function (scopingElement) {
         matching = Array.prototype.slice.call(scopingElement.getElementsByTagName(selector));
         elements = elements.concat(matching);
@@ -133,12 +132,11 @@
 
   femtoFun = function (selector, scope) {
     var elements = [], that, i;
-    
+
     if (typeof selector !== "undefined") {
       if (typeof selector === "string") {
         elements = findElements(selector, scope);
-      }
-      else if (typeof selector === "object") {
+      } else if (typeof selector === "object") {
         elements = [selector];
       }
     }
@@ -147,7 +145,7 @@
 
     // Copy matched elements into "that"
     that.length = elements.length;
-    for(i=0; i<elements.length; i += 1) {
+    for (i = 0; i < elements.length; i += 1) {
       that[i] = elements[i];
     }
 
